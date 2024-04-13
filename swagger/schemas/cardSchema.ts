@@ -71,7 +71,46 @@ const cardSchema = {
     },
   },
   updateCard: {
-    
+    description: "Update a card",
+    tags: ["Card"], // This should correspond to a defined tag in your Swagger setup
+    summary: "Update a card",
+    params: {
+      type: "object",
+      properties: {
+        cardId: { type: "string", description: "The ID of the card" },
+      },
+    },
+    body: {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "The title of the card" },
+        description: {
+          type: "string",
+          description: "The description of the card",
+        },
+      },
+    },
+    response: {
+      200: {
+        description: "Successful response",
+        type: "object",
+        properties: {
+          id: { type: "integer", description: "The ID of the card" },
+          title: { type: "string", description: "The title of the card" },
+          description: {
+            type: "string",
+            description: "The description of the card",
+          },
+        },
+      },
+      500: {
+        description: "Internal Server Error",
+        type: "object",
+        properties: {
+          error: { type: "string", description: "Error message" },
+        },
+      },
+    },
   },
   deleteCard: {
     description: "Delete a card",

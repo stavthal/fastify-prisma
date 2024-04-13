@@ -6,6 +6,7 @@ import boardSchemas from "./swagger/schemas/boardSchema"; // Import the 'boardSc
 import listSchema from "./swagger/schemas/listSchema"; // Import the 'listSchema' module
 import cardSchema from "./swagger/schemas/cardSchema"; // Import the 'cardSchema' module
 import { error } from "console";
+import { AnyTxtRecord } from "dns";
 
 fastify.register(require("@fastify/swagger"), {
   openapi: {
@@ -383,7 +384,35 @@ fastify.register((app: any, options: any, done: any) => {
 });
 
 // Update a card
-// TODO: Add an update for the card's details (like list id, name, description, etc
+fastify.register((app: any, options: any, done: any) => {
+  app.put("/cards/:cardId", {
+    schema: cardSchema.updateCard,
+    handler: async (request: any, reply: any) => {
+      const { cardId } = request.params;
+      const { title, description } = request.body;
+
+      try {
+        const updateCard = await prisma.card.update({
+          where: { id: parseInt(cardId) },
+          data: {
+            title,
+            description,
+          },
+        });
+        return reply.status(201).send(updateCard);
+      } catch (error: any) {
+        request.log.error(error);
+
+        // Check for specific error codes
+        if (error.code === "P2025") {
+          return reply.status(404).send({ error: "Card not found" });
+        }
+        return reply.status(500).send({ error: "Error updating card" });
+      }
+    },
+  });
+  done();
+});
 
 // Get a card
 fastify.register((app: any, options: any, done: any) => {
