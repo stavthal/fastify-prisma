@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 import boardSchemas from "./swagger/schemas/boardSchema"; // Import the 'boardSchema' module
 import listSchema from "./swagger/schemas/listSchema"; // Import the 'listSchema' module
 import cardSchema from "./swagger/schemas/cardSchema"; // Import the 'cardSchema' module
+import { error } from "console";
 
 fastify.register(require("@fastify/swagger"), {
   openapi: {
@@ -131,13 +132,24 @@ fastify.register((app: any, options: any, done: any) => {
   app.post("/boards/new-board", {
     schema: boardSchemas.createBoard,
     handler: async (request: any, reply: any) => {
-      const { title } = request.body;
-      const board = await prisma.board.create({
-        data: {
-          title,
-        },
-      });
-      return board;
+      try {
+        const { title } = request.body;
+        const board = await prisma.board.create({
+          data: {
+            title,
+          },
+        });
+        return reply.code(201).send(board); // Send the created board with a 201 Created status
+      } catch (error: any) {
+        // Log the error internally
+        app.log.error(error);
+
+        // Send a specific error message back to the client, making sure it's appropriate for client-side exposure
+        return reply.code(500).send({
+          error: "Internal Server Error",
+          message: "Unable to create new board due to an error",
+        });
+      }
     },
   });
   done();
@@ -271,7 +283,10 @@ fastify.register((app: any, options: any, done: any) => {
             .send({ error: "Board not found. Cannot create list" });
         }
         request.log.error(err);
-        return reply.status(500).send({ error: "Error creating list" });
+        return reply.status(500).send({
+          error: "Error creating list",
+          message: "Please make sure that the structure is correct.",
+        });
       }
     },
   });

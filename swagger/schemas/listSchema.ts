@@ -69,6 +69,7 @@ const listSchema = {
         type: "object",
         properties: {
           error: { type: "string", description: "Error message" },
+          message: { type: "string", description: "The message" },
         },
       },
     },
