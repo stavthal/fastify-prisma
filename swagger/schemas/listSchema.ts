@@ -74,6 +74,40 @@ const listSchema = {
       },
     },
   },
+  updateList: {
+    description: "Update a list",
+    tags: ["List"], // This should correspond to a defined tag in your Swagger setup
+    summary: "Update a list",
+    params: {
+      type: "object",
+      properties: {
+        listId: { type: "string", description: "The ID of the list" },
+      },
+    },
+    body: {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "The title of the list" },
+      },
+    },
+    response: {
+      200: {
+        description: "Successful response",
+        type: "object",
+        properties: {
+          id: { type: "integer", description: "The ID of the list" },
+          title: { type: "string", description: "The title of the list" },
+        },
+      },
+      500: {
+        description: "Internal Server Error",
+        type: "object",
+        properties: {
+          error: { type: "string", description: "Error message" },
+        },
+      },
+    },
+  },
   deleteList: {
     description: "Delete a list",
     tags: ["List"], // This should correspond to a defined tag in your Swagger setup

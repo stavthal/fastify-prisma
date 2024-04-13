@@ -48,7 +48,7 @@ fastify.register(require("@fastify/swagger"), {
 fastify.register(require("@fastify/swagger-ui"), {
   routePrefix: "/",
   uiConfig: {
-    docExpansion: "full",
+    docExpansion: "list",
     deepLinking: false,
   },
   uiHooks: {
@@ -294,7 +294,34 @@ fastify.register((app: any, options: any, done: any) => {
 });
 
 // Update a list
-// TODO: Add an update for the lists details (like board id, name , etc)
+fastify.register((app: any, options: any, done: any) => {
+  app.put("/lists/:listId", {
+    schema: listSchema.updateList,
+    handler: async (request: any, reply: any) => {
+      const { listId } = request.params;
+      const { title } = request.body;
+
+      try {
+        const updateList = await prisma.list.update({
+          where: { id: parseInt(listId) },
+          data: {
+            title,
+          },
+        });
+        return reply.status(201).send(updateList);
+      } catch (error: any) {
+        request.log.error(error);
+
+        // Check for specific error codes
+        if (error.code === "P2025") {
+          return reply.status(404).send({ error: "List not found" });
+        }
+        return reply.status(500).send({ error: "Error updating list" });
+      }
+    },
+  });
+  done();
+});
 
 // Delete a list
 fastify.register((app: any, options: any, done: any) => {
