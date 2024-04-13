@@ -1,0 +1,29 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Board {
+  id    Int    @id @default(autoincrement())
+  title String
+  lists List[]
+}
+
+model List {
+  id      Int    @id @default(autoincrement())
+  title   String
+  boardId Int
+  cards   Card[]
+  Board   Board  @relation(fields: [boardId], references: [id])
+}
+
+model Card {
+  id     Int    @id @default(autoincrement())
+  title  String
+  listId Int
+  List   List   @relation(fields: [listId], references: [id])
+}
