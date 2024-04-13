@@ -219,6 +219,35 @@ fastify.register((app: any, options: any, done: any) => {
   LISTS
 */
 
+// Get a list
+fastify.register((app: any, options: any, done: any) => {
+  app.get("/lists/:listId", {
+    schema: listSchema.getList,
+    handler: async (request: any, reply: any) => {
+      const { listId } = request.params;
+
+      try {
+        const list = await prisma.list.findUnique({
+          where: { id: parseInt(listId) },
+          include: {
+            cards: true,
+          },
+        });
+        return reply.send(list);
+      } catch (error: any) {
+        request.log.error(error);
+
+        // Check for specific error codes
+        if (error.code === "P2025") {
+          return reply.status(404).send({ error: "List not found" });
+        }
+        return reply.status(500).send({ error: "Error retrieving list" });
+      }
+    },
+  });
+  done();
+});
+
 // Create a list under a selected board based on the board's id
 fastify.register((app: any, options: any, done: any) => {
   app.post("/boards/:boardId/create-list", {
@@ -248,9 +277,6 @@ fastify.register((app: any, options: any, done: any) => {
   });
   done();
 });
-
-// Get a list
-// TODO: Add a route to get a single list by its id
 
 // Update a list
 // TODO: Add an update for the lists details (like board id, name , etc)
@@ -302,7 +328,9 @@ fastify.register((app: any, options: any, done: any) => {
             listId: parseInt(listId), // Ensure the list id is a number
           },
         });
-        return reply.send(card);
+        return reply
+          .status(200)
+          .send({ message: "Card added successfully", card: card });
       } catch (err) {
         request.log.error(err);
         return reply.status(500).send({ error: "Error adding card to a list" });
@@ -316,7 +344,30 @@ fastify.register((app: any, options: any, done: any) => {
 // TODO: Add an update for the card's details (like list id, name, description, etc
 
 // Get a card
-// TODO: Add a route to get the card by its id
+fastify.register((app: any, options: any, done: any) => {
+  app.get("/cards/:cardId", {
+    schema: cardSchema.getCard,
+    handler: async (request: any, reply: any) => {
+      const { cardId } = request.params;
+
+      try {
+        const card = await prisma.card.findUnique({
+          where: { id: parseInt(cardId) },
+        });
+        return reply.send(card);
+      } catch (error: any) {
+        request.log.error(error);
+
+        // Check for specific error codes
+        if (error.code === "P2025") {
+          return reply.status(404).send({ error: "Card not found" });
+        }
+        return reply.status(500).send({ error: "Error retrieving card" });
+      }
+    },
+  });
+  done();
+});
 
 // Delete a card
 fastify.register((app: any, options: any, done: any) => {
