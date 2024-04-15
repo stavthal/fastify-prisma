@@ -72,7 +72,7 @@ This repository contains the source code for a Trello-like API built with Fastif
 
 ## Documentation
 
-Visit `/documentation` on your local server to access the Swagger UI and view detailed information about the API endpoints and their specifications.
+Visit `/` on your local server to access the Swagger UI and view detailed information about the API endpoints and their specifications.
 
 ## Contributing
 
